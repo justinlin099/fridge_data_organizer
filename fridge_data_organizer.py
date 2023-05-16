@@ -18,15 +18,20 @@ with open(ICON_PATH, 'wb') as icon_file:
 
 
 root = tk.Tk()
-root.iconbitmap(default=ICON_PATH)
+root.iconbitmap(ICON_PATH)
+
+# root.mainloop()
 root.withdraw()
 
+
 #開啟冰箱違規表單
-file_path = filedialog.askopenfilename(parent=root, 
-                                    title='開啟"冰箱違規登記表"',filetype = (("試算表","*.xlsx"),("所有檔案","*.*")))
+file_path = filedialog.askopenfilename( 
+                                    title='開啟"冰箱違規登記表"',filetypes = (("試算表","*.xlsx"),("所有檔案","*.*")))
+
 if not file_path:
     print('file path is empty')
 else:
+
 #讀取冰箱違規表單
     data=pandas.read_excel(file_path,sheet_name=None)
     plist={}
@@ -96,7 +101,7 @@ else:
     if(DEBUG_MODE):
         print(plist)
     #寫入excel
-    save_path=filedialog.asksaveasfilename(parent=root, title='儲存"冰箱違規統計表"',filetype = (("試算表","*.xlsx"),("所有檔案","*.*")),defaultextension="*.xlsx",initialfile = "冰箱違規統計表")
+    save_path=filedialog.asksaveasfilename(title='儲存"冰箱違規統計表"',filetypes = (("試算表","*.xlsx"),("所有檔案","*.*")),defaultextension="*.xlsx",initialfile = "冰箱違規統計表")
     writer = pandas.ExcelWriter(save_path)
     #將plist分樓層寫入excel
     for floor in range(2,14):
@@ -118,6 +123,3 @@ else:
         
         df.to_excel(writer,sheet_name=str(floor)+"F")
     writer.close()
-                
-
-
