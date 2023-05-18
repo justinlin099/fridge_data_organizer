@@ -51,102 +51,101 @@ def readFile(plist):
         if(result):
             readFile(plist)
     else:
-        #try:
-    #讀取冰箱違規表單
-        data=pandas.read_excel(file_path,sheet_name=None)
-        
+        try:
+            #讀取冰箱違規表單
+            data=pandas.read_excel(file_path,sheet_name=None)
+            
 
 
-        #print(data)
-        #print(str(data["3F"]["備註"][1])=="nan")
+            #print(data)
+            #print(str(data["3F"]["備註"][1])=="nan")
 
-        #統計所有資料
-        for floor in data.keys():
-            if(DEBUG_MODE):
-                print(floor+" 紀錄開始")
-            for i in range(1,len(data[floor]["檢查日期"])):
-                if(str(data[floor]["房號"][i])!="nan" and str(data[floor]["床號"][i])!="nan"):#如果有房號床號                            
-                    #把該學生加入plist
-                    if(str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i])) not in plist.keys()):#如果該房號床號沒有紀錄
-                        if(str(data[floor]["學號"][i]) not in plist.keys()):#如果該學號沒有紀錄
-                            pfloor=str(int(data[floor]["房號"][i]//100))#樓層
-                            #以房號床號為依據寫入plist
-                            plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))]=Student(pfloor,str(int(data[floor]["房號"][i])),str(int(data[floor]["床號"][i])),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
-                        else:#如果該學號有紀錄
-                            if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(data[floor]["學號"][i]].dates):
-                                #日期一樣 跳過
-                                if(DEBUG_MODE):
-                                    print(str(floor)+"第"+str(i)+"重複資料，跳過")
-                                continue
-                            else:
-                            #如果該學生已經有紀錄，且日期不同，更新資料
-                                #增加違規次數
-                                plist[str(data[floor]["學號"][i])].count+=1
+            #統計所有資料
+            for floor in data.keys():
+                if(DEBUG_MODE):
+                    print(floor+" 紀錄開始")
+                for i in range(1,len(data[floor]["檢查日期"])):
+                    if(str(data[floor]["房號"][i])!="nan" and str(data[floor]["床號"][i])!="nan"):#如果有房號床號                            
+                        #把該學生加入plist
+                        if(str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i])) not in plist.keys()):#如果該房號床號沒有紀錄
+                            if(str(data[floor]["學號"][i]) not in plist.keys()):#如果該學號沒有紀錄
+                                pfloor=str(int(data[floor]["房號"][i]//100))#樓層
+                                #以房號床號為依據寫入plist
+                                plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))]=Student(pfloor,str(int(data[floor]["房號"][i])),str(int(data[floor]["床號"][i])),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
+                            else:#如果該學號有紀錄
+                                if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(data[floor]["學號"][i])].dates):
+                                    
+                                #如果該學生已經有紀錄，且日期不同，更新資料
+                                    #增加違規次數
+                                    plist[str(data[floor]["學號"][i])].count+=1
 
-                                #更新日期
-                                plist[str(data[floor]["學號"][i])].lastDate=str(data[floor]["檢查日期"][i])
-                                plist[str(data[floor]["學號"][i])].dates=plist[str(data[floor]["學號"][i])].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
+                                    #更新日期
+                                    plist[str(data[floor]["學號"][i])].lastDate=str(data[floor]["檢查日期"][i])
+                                    plist[str(data[floor]["學號"][i])].dates=plist[str(data[floor]["學號"][i])].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
 
                                 #如果學號或姓名為空，更新學號或姓名
                                 if(str(data[floor]["房號"][i])!="nan" and plist[str(data[floor]["學號"][i])].room=="nan"):  
                                     plist[str(data[floor]["學號"][i])].room=str(int(data[floor]["房號"][i]))
+                                    pfloor=str(int(data[floor]["房號"][i]//100))#樓層
+                                    plist[str(data[floor]["學號"][i])].floor=pfloor
                                 if(str(data[floor]["床號"][i])!="nan" and plist[str(data[floor]["學號"][i])].bed=="nan"):
                                     plist[str(data[floor]["學號"][i])].bed=str(int(data[floor]["床號"][i]))
+                                if(str(data[floor]["姓名"][i])!="nan" and plist[str(data[floor]["學號"][i])].name=="nan"):
+                                    plist[str(data[floor]["學號"][i])].name=str(data[floor]["姓名"][i])
 
-                    else:#如果該房號床號有紀錄
-                        #如果該學生已經有紀錄，且日期相同，跳過
-                        if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates):
-                            #增加違規次數
-                            plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].count+=1
+                        else:#如果該房號床號有紀錄
+                            #如果該學生已經有紀錄，且日期相同，跳過
+                            if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates):
+                                #增加違規次數
+                                plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].count+=1
 
-                            #更新日期
-                            plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].lastDate=str(data[floor]["檢查日期"][i])
-                            plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates=plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
+                                #更新日期
+                                plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].lastDate=str(data[floor]["檢查日期"][i])
+                                plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates=plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
 
                             #如果學號或姓名為空，更新學號或姓名
                             if(str(data[floor]["學號"][i])!="nan" and plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].id=="nan"):  
                                 plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].id=str(data[floor]["學號"][i])
                             if(str(data[floor]["姓名"][i])!="nan" and plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].name=="nan"):
                                 plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].name=str(data[floor]["姓名"][i])
-                        
-
-                elif(str(data[floor]["學號"][i])!="nan"):#如果沒有房號床號，但有學號
-                    if(str(data[floor]["學號"][i]) not in plist.keys()):
-                        roomFinded=False
-                        for key in plist.keys():
-                            if(plist[key].id==str(data[floor]["學號"][i])):
-                                roomFinded=True
-                                if(DEBUG_MODE):
-                                    print(str(floor)+"第"+str(i)+"已找到資料")
-
-                                #如果該學生已經有紀錄，且日期相同，跳過
-                                if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[key].dates):
-                                    #增加違規次數
-                                    plist[key].count+=1
-
-                                    #更新日期
-                                    plist[key].lastDate=str(data[floor]["檢查日期"][i])
-                                    plist[key].dates=plist[key].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
-                                break;
-                        if(roomFinded==False):#沒有相符結果，以學號為key新增學生
-                            pfloor=str(floor)[:-1]#樓層
-                            if(str(data[floor]["房號"][i])!="nan"):
-                                pfloor=str(int(data[floor]["房號"][i]//100))#樓層
-                                plist[str(data[floor]["學號"][i])]=Student(pfloor,str(int(data[floor]["房號"][i])),str(data[floor]["床號"][i]),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
-                        #寫入plist
-                            else:
-                                plist[str(data[floor]["學號"][i])]=Student(pfloor,str(data[floor]["房號"][i]),str(data[floor]["床號"][i]),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
                             
-                    else:
-                        #如果該學生已經有紀錄，且日期相同，跳過
-                        if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[key].dates):
-                            
-                            #增加違規次數
-                            plist[str(data[floor]["學號"][i])].count+=1
 
-                            #更新日期
-                            plist[str(data[floor]["學號"][i])].lastDate=str(data[floor]["檢查日期"][i])
-                            plist[str(data[floor]["學號"][i])].dates=plist[str(data[floor]["學號"][i])].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
+                    elif(str(data[floor]["學號"][i])!="nan"):#如果沒有房號床號，但有學號
+                        if(str(data[floor]["學號"][i]) not in plist.keys()):
+                            roomFinded=False
+                            for key in plist.keys():
+                                if(plist[key].id==str(data[floor]["學號"][i])):
+                                    roomFinded=True
+                                    if(DEBUG_MODE):
+                                        print(str(floor)+"第"+str(i)+"已找到資料")
+
+                                    #如果該學生已經有紀錄，且日期相同，跳過
+                                    if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[key].dates):
+                                        #增加違規次數
+                                        plist[key].count+=1
+
+                                        #更新日期
+                                        plist[key].lastDate=str(data[floor]["檢查日期"][i])
+                                        plist[key].dates=plist[key].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
+                                    break;
+                            if(roomFinded==False):#沒有相符結果，以學號為key新增學生
+                                pfloor=str(floor)[:-1]#樓層
+                                if(str(data[floor]["房號"][i])!="nan"):
+                                    pfloor=str(int(data[floor]["房號"][i]//100))#樓層
+                                    plist[str(data[floor]["學號"][i])]=Student(pfloor,str(int(data[floor]["房號"][i])),str(data[floor]["床號"][i]),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
+                            #寫入plist
+                                else:
+                                    plist[str(data[floor]["學號"][i])]=Student(pfloor,str(data[floor]["房號"][i]),str(data[floor]["床號"][i]),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
+                                
+                        else:
+                            #如果該學生已經有紀錄，且日期相同，跳過
+                            if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(data[floor]["學號"][i])].dates):
+                                #增加違規次數
+                                plist[str(data[floor]["學號"][i])].count+=1
+
+                                #更新日期
+                                plist[str(data[floor]["學號"][i])].lastDate=str(data[floor]["檢查日期"][i])
+                                plist[str(data[floor]["學號"][i])].dates=plist[str(data[floor]["學號"][i])].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
 
                             #如果學號或姓名為空，更新學號或姓名
                             if(str(data[floor]["房號"][i])!="nan" and plist[str(data[floor]["房號"][i])].id=="nan"):  
@@ -156,18 +155,18 @@ def readFile(plist):
                             if(str(data[floor]["姓名"][i])!="nan" and plist[str(data[floor]["學號"][i])].name=="nan"):
                                 plist[str(data[floor]["學號"][i])].name=str(data[floor]["姓名"][i])
                         
-                    
                         
-                
-        #寫入excel
-        save_path=filedialog.asksaveasfilename(title='儲存"冰箱違規統計表"',filetypes = (("試算表","*.xlsx"),("所有檔案","*.*")),defaultextension="*.xlsx",initialfile = "冰箱違規統計表")
-        saveFile(save_path,plist)
-        '''except:
+                            
+                    
+            #寫入excel
+            save_path=filedialog.asksaveasfilename(title='儲存"冰箱違規統計表"',filetypes = (("試算表","*.xlsx"),("所有檔案","*.*")),defaultextension="*.xlsx",initialfile = "冰箱違規統計表")
+            saveFile(save_path,plist)
+        except:
             result=tk.messagebox.askretrycancel(title='錯誤', message='檔案格式錯誤，請確認檔案格式正確')
             if(result):
                 readFile(plist)
         if(DEBUG_MODE):
-            print(plist)'''
+            print(plist)
 def saveFile(save_path,plist):
     try:
         writer = pandas.ExcelWriter(save_path)
