@@ -171,10 +171,26 @@ def saveFile(save_path,plist):
     try:
         writer = pandas.ExcelWriter(save_path)
         #將plist分樓層寫入excel
+        #超過三次的人
+        writeData={"樓層":[],"房號":[],"床號":[],"學號":[],"姓名":[],"違規次數":[],"違規日期":[]}
+        for key in plist.keys():
+            if(plist[key].count>=3):
+                writeData["樓層"].append(plist[key].floor)
+                writeData["房號"].append(plist[key].room)
+                writeData["床號"].append(plist[key].bed)
+                writeData["學號"].append(plist[key].id)
+                writeData["姓名"].append(plist[key].name)
+                writeData["違規次數"].append(int(plist[key].count))
+                writeData["違規日期"].append(plist[key].dates)
+        df=pandas.DataFrame(writeData)
+        new_df = df.style.set_properties(**{'font-size': '10pt', 'font-family': 'Microsoft JhengHei'})\
+        .applymap(rating_highlight, subset=pandas.IndexSlice[:, ['違規次數']])
+        new_df.to_excel(writer,sheet_name="超過三次的人")
+        
         for floor in range(2,14):
             if(DEBUG_MODE):
                 print(str(floor)+"樓開始寫入")
-
+                
             #寫入資料
             writeData={"樓層":[],"房號":[],"床號":[],"學號":[],"姓名":[],"違規次數":[],"違規日期":[]}
             for key in plist.keys():
