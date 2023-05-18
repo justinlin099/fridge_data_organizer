@@ -1,1 +1,1 @@
-pyinstaller -i ico.png -F -w fridge_data_organizer.py
+pyinstaller -i icon.png -F -w fridge_data_organizer.py

@@ -16,3 +16,5 @@ build/fridge_data_organizer/fridge_data_organizer.exe.manifest
 build/fridge_data_organizer/EXE-00.toc
 build/fridge_data_organizer/base_library.zip
 build/fridge_data_organizer/Analysis-00.toc
+fridge_data_organizer.spec
+*.spec
