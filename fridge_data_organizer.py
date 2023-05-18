@@ -6,7 +6,7 @@ DEBUG_MODE = False
 
 import tkinter as tk
 from tkinter import filedialog
-import base64, zlib
+import base64
 import tempfile
 
 class Student:
@@ -65,16 +65,16 @@ def readFile(plist):
             if(DEBUG_MODE):
                 print(floor+" 紀錄開始")
             for i in range(1,len(data[floor]["檢查日期"])):
-                idFinded=False
                 if(str(data[floor]["房號"][i])!="nan" and str(data[floor]["床號"][i])!="nan"):#如果有房號床號                            
                     #把該學生加入plist
-                    if(str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i])) not in plist.keys()):
-                        if(str(data[floor]["學號"][i]) not in plist.keys()):
+                    if(str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i])) not in plist.keys()):#如果該房號床號沒有紀錄
+                        if(str(data[floor]["學號"][i]) not in plist.keys()):#如果該學號沒有紀錄
                             pfloor=str(int(data[floor]["房號"][i]//100))#樓層
-                            #寫入plist
+                            #以房號床號為依據寫入plist
                             plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))]=Student(pfloor,str(int(data[floor]["房號"][i])),str(int(data[floor]["床號"][i])),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
-                        else:
+                        else:#如果該學號有紀錄
                             if(plist[str(data[floor]["學號"][i])].lastDate==str(data[floor]["檢查日期"][i])):
+                                #日期一樣 跳過
                                 if(DEBUG_MODE):
                                     print(str(floor)+"第"+str(i)+"重複資料，跳過")
                                 continue
@@ -89,12 +89,11 @@ def readFile(plist):
 
                                 #如果學號或姓名為空，更新學號或姓名
                                 if(str(data[floor]["房號"][i])!="nan" and plist[str(data[floor]["學號"][i])].room=="nan"):  
-                                    plist[str(data[floor]["學號"][i])].room=str(data[floor]["房號"][i])
+                                    plist[str(data[floor]["學號"][i])].room=str(int(data[floor]["房號"][i]))
                                 if(str(data[floor]["床號"][i])!="nan" and plist[str(data[floor]["學號"][i])].bed=="nan"):
-                                    plist[str(data[floor]["學號"][i])].bed=str(data[floor]["床號"][i])
-                                idFinded=True
+                                    plist[str(data[floor]["學號"][i])].bed=str(int(data[floor]["床號"][i]))
 
-                    else:
+                    else:#如果該房號床號有紀錄
                         #如果該學生已經有紀錄，且日期相同，跳過
                         if(plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].lastDate==str(data[floor]["檢查日期"][i])):
                             if(DEBUG_MODE):
@@ -109,58 +108,58 @@ def readFile(plist):
                             plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].lastDate=str(data[floor]["檢查日期"][i])
                             plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates=plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
 
-                        #如果學號或姓名為空，更新學號或姓名
-                        if(str(data[floor]["學號"][i])!="nan" and plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].id=="nan"):  
-                            plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].id=str(data[floor]["學號"][i])
-                        if(str(data[floor]["姓名"][i])!="nan" and plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].name=="nan"):
-                            plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].name=str(data[floor]["姓名"][i])
-                    idFinded=True
+                            #如果學號或姓名為空，更新學號或姓名
+                            if(str(data[floor]["學號"][i])!="nan" and plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].id=="nan"):  
+                                plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].id=str(data[floor]["學號"][i])
+                            if(str(data[floor]["姓名"][i])!="nan" and plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].name=="nan"):
+                                plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].name=str(data[floor]["姓名"][i])
+                        
 
-                elif(str(data[floor]["學號"][i])!="nan" and idFinded==False):#如果沒有房號床號，但有學號
-                    roomFinded=False
-                    for key in plist.keys():
-                        if(plist[key].id==str(data[floor]["學號"][i])):
-                            if(DEBUG_MODE):
-                                print(str(floor)+"第"+str(i)+"已找到資料")
-                            #如果該學生已經有紀錄，且日期相同，跳過
-                            if(plist[key].lastDate==str(data[floor]["檢查日期"][i])):
+                elif(str(data[floor]["學號"][i])!="nan"):#如果沒有房號床號，但有學號
+                    if(str(data[floor]["學號"][i]) not in plist.keys()):
+                        roomFinded=False
+                        for key in plist.keys():
+                            if(plist[key].id==str(data[floor]["學號"][i])):
                                 if(DEBUG_MODE):
-                                    print(str(floor)+"第"+str(i)+"重複資料，跳過")
-                                continue
-                            else:
-                                #增加違規次數
-                                plist[key].count+=1
+                                    print(str(floor)+"第"+str(i)+"已找到資料")
 
-                                #更新日期
-                                plist[key].lastDate=str(data[floor]["檢查日期"][i])
-                                plist[key].dates=plist[key].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
-                            roomFinded=True
-                            break;
-                            
-                    if(roomFinded==False):
-                        if(str(data[floor]["學號"][i]) not in plist.keys()):
+                                #如果該學生已經有紀錄，且日期相同，跳過
+                                if(plist[key].lastDate==str(data[floor]["檢查日期"][i])):
+                                    if(DEBUG_MODE):
+                                        print(str(floor)+"第"+str(i)+"重複資料，跳過")
+                                    continue
+                                else:
+                                    #增加違規次數
+                                    plist[key].count+=1
+
+                                    #更新日期
+                                    plist[key].lastDate=str(data[floor]["檢查日期"][i])
+                                    plist[key].dates=plist[key].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
+                                roomFinded=True
+                                break;
+                        if(roomFinded==False):#沒有相符結果，以學號為key新增學生
                             pfloor=str(floor)[:-1]#樓層
                             if(str(data[floor]["房號"][i])!="nan"):
                                 pfloor=str(int(data[floor]["房號"][i]//100))#樓層
                                 plist[str(data[floor]["學號"][i])]=Student(pfloor,str(int(data[floor]["房號"][i])),str(data[floor]["床號"][i]),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
-                            #寫入plist
+                        #寫入plist
                             else:
                                 plist[str(data[floor]["學號"][i])]=Student(pfloor,str(data[floor]["房號"][i]),str(data[floor]["床號"][i]),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
                             
-                        else:
-                            #如果該學生已經有紀錄，且日期相同，跳過
-                            if(plist[str(data[floor]["學號"][i])].lastDate==str(data[floor]["檢查日期"][i])):
-                                if(DEBUG_MODE):
-                                    print(str(floor)+"第"+str(i)+"重複資料，跳過")
-                                continue
-                            else:#如果該學生已經有紀錄，且日期不同，更新資料
+                    else:
+                        #如果該學生已經有紀錄，且日期相同，跳過
+                        if(plist[str(data[floor]["學號"][i])].lastDate==str(data[floor]["檢查日期"][i])):
+                            if(DEBUG_MODE):
+                                print(str(floor)+"第"+str(i)+"重複資料，跳過")
+                            continue
+                        else:#如果該學生已經有紀錄，且日期不同，更新資料
 
-                                #增加違規次數
-                                plist[str(data[floor]["學號"][i])].count+=1
+                            #增加違規次數
+                            plist[str(data[floor]["學號"][i])].count+=1
 
-                                #更新日期
-                                plist[str(data[floor]["學號"][i])].lastDate=str(data[floor]["檢查日期"][i])
-                                plist[str(data[floor]["學號"][i])].dates=plist[str(data[floor]["學號"][i])].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
+                            #更新日期
+                            plist[str(data[floor]["學號"][i])].lastDate=str(data[floor]["檢查日期"][i])
+                            plist[str(data[floor]["學號"][i])].dates=plist[str(data[floor]["學號"][i])].dates+"."+str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10]
 
                             #如果學號或姓名為空，更新學號或姓名
                             if(str(data[floor]["房號"][i])!="nan" and plist[str(data[floor]["房號"][i])].id=="nan"):  
@@ -169,7 +168,7 @@ def readFile(plist):
                                 plist[str(data[floor]["床號"][i])].id=str(data[floor]["床號"][i])
                             if(str(data[floor]["姓名"][i])!="nan" and plist[str(data[floor]["學號"][i])].name=="nan"):
                                 plist[str(data[floor]["學號"][i])].name=str(data[floor]["姓名"][i])
-                            
+                        
                     
                         
                 
