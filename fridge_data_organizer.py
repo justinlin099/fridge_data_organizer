@@ -73,7 +73,7 @@ def readFile(plist):
                             #以房號床號為依據寫入plist
                             plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))]=Student(pfloor,str(int(data[floor]["房號"][i])),str(int(data[floor]["床號"][i])),str(data[floor]["學號"][i]),str(data[floor]["姓名"][i]),str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10],str(data[floor]["檢查日期"][i]))
                         else:#如果該學號有紀錄
-                            if(plist[str(data[floor]["學號"][i])].lastDate==str(data[floor]["檢查日期"][i])):
+                            if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(data[floor]["學號"][i]].dates):
                                 #日期一樣 跳過
                                 if(DEBUG_MODE):
                                     print(str(floor)+"第"+str(i)+"重複資料，跳過")
@@ -96,11 +96,6 @@ def readFile(plist):
                     else:#如果該房號床號有紀錄
                         #如果該學生已經有紀錄，且日期相同，跳過
                         if(str(data[floor]["檢查日期"][i])[5:7]+"/"+str(data[floor]["檢查日期"][i])[8:10] not in plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].dates):
-                            if(DEBUG_MODE):
-                                print(str(floor)+"第"+str(i)+"重複資料，跳過")
-                            continue
-                        else:#如果該學生已經有紀錄，且日期不同，更新資料
-
                             #增加違規次數
                             plist[str(int(data[floor]["房號"][i]))+"-"+str(int(data[floor]["床號"][i]))].count+=1
 
