@@ -234,7 +234,11 @@ def saveFile(save_path,plist):
 
         openFile=tk.messagebox.askyesno(title='儲存成功', message='儲存成功，是否開啟檔案')
         if(openFile):
-            os.startfile(save_path)
+            if sys.platform=="win32":
+                os.startfile(save_path)
+            else:
+                opener="open" if sys.platform=="darwin" else "xdg-open"
+                subprocess.call([opener,save_path])
 
     except:
         result=tk.messagebox.askretrycancel(title='錯誤', message='儲存失敗，請確認檔案未在其他軟體開啟')
