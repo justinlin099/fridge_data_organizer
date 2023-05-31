@@ -10,7 +10,7 @@ from setuptools import setup
 APP = ['fridge_data_organizer.py']
 DATA_FILES = []
 OPTIONS = {'iconfile': '/Users/wei/Downloads/fridge_data_organizer-main/image/icon.icns',
-           'includes': ['tkinter', 'pandas', 'tempfile','base64','zlib','openpyxl']
+           'includes': ['tkinter', 'pandas', 'tempfile','base64','zlib','openpyxl','jinja2']
     }
 
 setup(
