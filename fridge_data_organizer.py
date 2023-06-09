@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 import pandas
 
 #輸出錯誤訊息
